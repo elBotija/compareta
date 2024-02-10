@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Comparador de precios</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body class="bg-gray-100">
+  <h1 class="text-3xl font-bold mb-4 w-full text-center bg-blue-500 text-white py-2">Comparador de precios</h1>
+  <div class="md:max-w-md lg:w-full mx-auto lg:max-w-full lg:flex lg:justify-center lg:items-center lg:flex-nowrap lg:space-x-2  px-6 pt-0 pb-6">
+    <!-- Input para filtrar por texto -->
+    <div class="mb-4 lg:mb-0 lg:w-4/12">
+      <input type="text" id="search-input" list="category-list" placeholder="Categoria"
+        class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500">
+      <datalist id="category-list"
+        class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500">
+        <option value="">Todas</option>
+      </datalist>
+    </div>
+    <div class="mb-4 lg:mb-0 lg:w-4/12">
+      <!--on change value execute-->
+      <input type="text" id="contain" placeholder="Contiene: (ej: marca, peso... )"
+        class="w-full p-2 border border-gray-300 rounded-md focus:outline-none focus:border-blue-500" >
+    </div>
+    <!-- input checkbox grouped by super-->
+    <div class="mb-4 lg:mb-0 flex justify-center intes-center lg:w-2/12">
+      <label for="super" class="block mr-2">Agrupar por Supermercado:</label>
+      <input type="checkbox" id="super" />
+    </div>
+    
+    <!-- Botón de búsqueda -->
+    <button id="search-button"
+      class="w-full bg-blue-500 text-white py-2 px-4 rounded-md hover:bg-blue-600 focus:outline-none focus:bg-blue-600 lg:w-2/12">
+      Buscar
+    </button>
+
+    <!-- Resultados de búsqueda -->
+  </div>
+  <div id="search-results" class="mt-6 w-full">
+    <!-- Los resultados se insertarán aquí mediante JavaScript -->
+  </div>
+
+  <!-- Script para manejar la búsqueda y los resultados -->
+  <script>
+
+    // crear fetch  para obtener los productos al cargar y guardarlos en una variable
+    var d = null;
+    var j = null;
+    var ca = null;
+    var cha = null;
+    var co = null;
+    var ve = null;
+    var dis = null;
+
+    function getPrducts(file, callback) {
+      return fetch(file)
+      .then(response => response.json())
+      .then(res => callback(res))
+      .catch(error => console.log(error))
+    }
+
+    getPrducts('data/dia.json', (r)=>d=r);
+    getPrducts('data/jumbo.json', (r)=>j=r);
+    getPrducts('data/carrefour.json', (r)=>ca=r);
+    getPrducts('data/chango.json', (r)=>cha=r);
+    getPrducts('data/coto.json', (r)=>co=r);
+    getPrducts('data/vea.json', (r)=>ve=r);
+    getPrducts('data/disco.json', (r)=>dis=r);
+
+
+
+    // Función para renderizar los resultados de búsqueda
+    function renderizarResultados(resultados) {
+      const resultadosContainer = document.getElementById("search-results");
+      resultadosContainer.classList.remove("flex", "lg:flex-nowrap", "flex-col", "md:flex-row", "md:flex-wrap", "md:justify-between", "md:items-start");
+      resultadosContainer.innerHTML = "";
+      if(document.getElementById("super").checked){
+        renderizarResultadosSuper(resultados);
+        return;
+      } 
+      resultadosContainer.classList.add('max-w-md', 'mx-auto');
+      resultados.forEach(producto => {
+        const productoElement = document.createElement("div");
+        productoElement.classList.add("border", "border-gray-300", "rounded-md", "p-4", "mb-2");
+
+        const nombreProducto = document.createElement("div");
+        nombreProducto.textContent = producto.name;
+        nombreProducto.classList.add("font-bold");
+        productoElement.appendChild(nombreProducto);
+
+        const precioProducto = document.createElement("div");
+        precioProducto.textContent = '$ ' + producto.price;
+        productoElement.appendChild(precioProducto);
+
+        const supermercado = document.createElement("div");
+        supermercado.textContent = producto.supermercado;
+        productoElement.appendChild(supermercado);
+
+        resultadosContainer.appendChild(productoElement);
+      });
+    }
+
+    function renderizarResultadosSuper(resultados) {
+      const resultadosContainer = document.getElementById("search-results");
+      resultadosContainer.classList.add("flex", "lg:flex-nowrap", "md:flex-row", "md:flex-wrap", "md:justify-between", "md:items-start");
+      resultadosContainer.classList.remove('max-w-md', 'mx-auto');
+      resultadosContainer.innerHTML = "";
+      const supermercados = ['Dia', 'Jumbo', 'Carrefour', 'Chango', 'Coto', 'Vea', 'Disco'];
+      supermercados.forEach(supermercado => {
+        const supermercadoElement = document.createElement("div");
+        supermercadoElement.classList.add("p-2", "mb-2", "super-group");
+        supermercadoElement.classList.add("font-bold");
+        supermercadoElement.textContent = supermercado;
+        resultadosContainer.appendChild(supermercadoElement);
+        resultados.forEach(producto => {
+          if(producto.supermercado === supermercado){
+            const productoElement = document.createElement("div");
+            productoElement.classList.add("border", "border-gray-300", "rounded-md", "p-4", "mb-2");
+            const nombreProducto = document.createElement("div");
+            nombreProducto.textContent = producto.name;
+            nombreProducto.classList.add("font-bold");
+            productoElement.appendChild(nombreProducto);
+            const precioProducto = document.createElement("div");
+            precioProducto.textContent = '$ ' + producto.price;
+            productoElement.appendChild(precioProducto);
+            supermercadoElement.appendChild(productoElement);
+          }
+        });
+      });
+      document.querySelectorAll(".super-group").forEach(e=>{if(e.querySelectorAll("div").length === 0) e.remove()})
+    }
+
+    function decorateProducts(categoria, data, supermercado){
+      return data[categoria].map(x => ({ ...x, price: stringToNumber(x.price), supermercado: supermercado }));
+    }
+
+    // Función para filtrar productos
+    function filtrarProductos(categoria, contiene) {
+      let resultadosFiltrados = null;
+      if (categoria && d && j && ca && cha && co && ve && dis) {
+        // resultadosFiltrados = resultadosFiltrados.filter(producto => producto.name.toLowerCase().includes(categoria.toLowerCase()));
+        resultadosFiltrados = [...decorateProducts(categoria, d, 'Dia'), ...decorateProducts(categoria, j, 'Jumbo'), ...decorateProducts(categoria, ca, 'Carrefour'), ...decorateProducts(categoria, cha, 'Chango'), ...decorateProducts(categoria, co, 'Coto'), ...decorateProducts(categoria, ve, 'Vea'), ...decorateProducts(categoria, dis, 'Disco')];
+        if (contiene) {
+          //contain all the words
+          resultadosFiltrados = resultadosFiltrados.filter(producto => contiene.every(word => producto.name.toLowerCase().includes(word.toLowerCase())));
+        }
+        hasCategory = resultadosFiltrados.filter(producto => producto.name.toLowerCase().includes(categoria.toLowerCase()));
+        hasCategory.sort((a, b) => a.price - b.price);
+      }
+
+
+      return hasCategory;
+    }
+
+
+    function stringToNumber(str) {
+      // Eliminar todos los caracteres que no sean números, comas y puntos
+      const cleanedStr = str.replace(/[^\d,.]/g, '');
+
+      // Reemplazar la coma por un punto para tener un formato válido de número
+      const numberStr = cleanedStr.replace('.', '').replace(',', '.');  
+
+      // Convertir la cadena a un número flotante
+      const number = parseFloat(numberStr);
+
+      return number;
+    }
+
+    
+
+    function getCategories() {
+      try{
+        fetch('data/categories.json').then(response => response.json()).then(res => {
+          res.categories.forEach(category => {
+            const option = document.createElement("option");
+            option.value = category;
+            document.getElementById("category-list").appendChild(option);
+          });
+        });
+      } catch (error) {
+        console.log(error)
+        setTimeout(getCategories, 1000);
+      }
+    }
+
+    getCategories();
+
+    function search(){
+      const categoriaSeleccionada = document.getElementById("search-input").value;
+      const contiene = document.getElementById("contain").value.split(' ');
+      const resultados = filtrarProductos(categoriaSeleccionada, contiene);
+      renderizarResultados(resultados);
+    }
+
+    // Evento de click en el botón de búsqueda
+    document.getElementById("search-button").addEventListener("click", () => {
+      search();
+    });
+
+
+  </script>
+</body>
+
+</html>
