@@ -65,7 +65,7 @@
     getPrducts('data/dia.json', (r)=>d=r);
     getPrducts('data/jumbo.json', (r)=>j=r);
     getPrducts('data/carrefour.json', (r)=>ca=r);
-    getPrducts('data/chango.json', (r)=>cha=r);
+    getPrducts('data/changomas.json', (r)=>cha=r);
     getPrducts('data/coto.json', (r)=>co=r);
     getPrducts('data/vea.json', (r)=>ve=r);
     getPrducts('data/disco.json', (r)=>dis=r);
@@ -108,7 +108,7 @@
       resultadosContainer.classList.add("flex", "lg:flex-nowrap", "md:flex-row", "md:flex-wrap", "md:justify-between", "md:items-start");
       resultadosContainer.classList.remove('max-w-md', 'mx-auto');
       resultadosContainer.innerHTML = "";
-      const supermercados = ['Dia', 'Jumbo', 'Carrefour', 'Chango', 'Coto', 'Vea', 'Disco'];
+      const supermercados = ['Dia', 'Jumbo', 'Carrefour', 'Changomas', 'Coto', 'Vea', 'Disco'];
       supermercados.forEach(supermercado => {
         const supermercadoElement = document.createElement("div");
         supermercadoElement.classList.add("p-2", "mb-2", "super-group");
@@ -142,7 +142,7 @@
       let resultadosFiltrados = null;
       if (categoria && d && j && ca && cha && co && ve && dis) {
         // resultadosFiltrados = resultadosFiltrados.filter(producto => producto.name.toLowerCase().includes(categoria.toLowerCase()));
-        resultadosFiltrados = [...decorateProducts(categoria, d, 'Dia'), ...decorateProducts(categoria, j, 'Jumbo'), ...decorateProducts(categoria, ca, 'Carrefour'), ...decorateProducts(categoria, cha, 'Chango'), ...decorateProducts(categoria, co, 'Coto'), ...decorateProducts(categoria, ve, 'Vea'), ...decorateProducts(categoria, dis, 'Disco')];
+        resultadosFiltrados = [...decorateProducts(categoria, d, 'Dia'), ...decorateProducts(categoria, j, 'Jumbo'), ...decorateProducts(categoria, ca, 'Carrefour'), ...decorateProducts(categoria, cha, 'Changomas'), ...decorateProducts(categoria, co, 'Coto'), ...decorateProducts(categoria, ve, 'Vea'), ...decorateProducts(categoria, dis, 'Disco')];
         if (contiene) {
           //contain all the words
           resultadosFiltrados = resultadosFiltrados.filter(producto => contiene.every(word => producto.name.toLowerCase().includes(word.toLowerCase())));
