@@ -9,7 +9,10 @@
 </head>
 
 <body class="bg-gray-100">
-  <h1 class="text-3xl font-bold mb-4 w-full text-center bg-blue-500 text-white py-2">Comparador de precios</h1>
+  <header class="mb-1 w-full text-center relative">
+    <h1 class="text-3xl font-bold w-full bg-blue-500 text-white py-2 ">Comparador de precios</h1>
+    <small id="date" class="text-xs font-bold text-gray-400">Actualizado al 22-02-2024</small>
+  </header>
   <div class="md:max-w-md lg:w-full mx-auto lg:max-w-full lg:flex lg:justify-center lg:items-center lg:flex-nowrap lg:space-x-2  px-6 pt-0 pb-6">
     <!-- Input para filtrar por texto -->
     <div class="mb-4 lg:mb-0 lg:w-4/12">
@@ -28,7 +31,7 @@
     <!-- input checkbox grouped by super-->
     <div class="mb-4 lg:mb-0 flex justify-center intes-center lg:w-2/12">
       <label for="super" class="block mr-2">Agrupar por Supermercado:</label>
-      <input type="checkbox" id="super" />
+      <input type="checkbox" id="super" checked />
     </div>
     
     <!-- Botón de búsqueda -->
@@ -57,21 +60,21 @@
     var ve = null;
     var dis = null;
 
-    function getPrducts(file, callback) {
+    function getData(file, callback) {
       return fetch(file)
       .then(response => response.json())
       .then(res => callback(res))
       .catch(error => console.log(error))
     }
 
-    getPrducts('data/dia.json', (r)=>d=r);
-    getPrducts('data/jumbo.json', (r)=>j=r);
-    getPrducts('data/carrefour.json', (r)=>ca=r);
-    getPrducts('data/changomas.json', (r)=>cha=r);
-    getPrducts('data/coto.json', (r)=>co=r);
-    getPrducts('data/vea.json', (r)=>ve=r);
-    getPrducts('data/disco.json', (r)=>dis=r);
-
+    getData('data/dia.json', (r)=>d=r);
+    getData('data/jumbo.json', (r)=>j=r);
+    getData('data/carrefour.json', (r)=>ca=r);
+    getData('data/changomas.json', (r)=>cha=r);
+    getData('data/coto.json', (r)=>co=r);
+    getData('data/vea.json', (r)=>ve=r);
+    getData('data/disco.json', (r)=>dis=r);
+    getData('data/date.json', (r)=>document.getElementById('date').textContent = 'Actualizado al ' + r.date)
 
 
     // Función para renderizar los resultados de búsqueda
@@ -201,6 +204,7 @@
     document.getElementById("search-button").addEventListener("click", () => {
       search();
     });
+
 
 
   </script>
