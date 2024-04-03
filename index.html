@@ -42,7 +42,7 @@
 
     <!-- Resultados de búsqueda -->
   </div>
-  <div id="search-results" class="mt-6 w-full">
+  <div id="search-results" class="mt-6 w-full max-w-full overflow-x-scroll">
     <!-- Los resultados se insertarán aquí mediante JavaScript -->
   </div>
 
@@ -89,7 +89,7 @@
       resultadosContainer.classList.add('max-w-md', 'mx-auto');
       resultados.forEach(producto => {
         const productoElement = document.createElement("div");
-        productoElement.classList.add("border", "border-gray-300", "rounded-md", "p-4", "mb-2");
+        productoElement.classList.add("border", "border-gray-300", "bg-white", "shadow-md", "rounded-md", "p-4", "mb-2");
 
         const nombreProducto = document.createElement("div");
         nombreProducto.textContent = producto.name;
@@ -123,7 +123,7 @@
         resultados.forEach(producto => {
           if(producto.supermercado === supermercado){
             const productoElement = document.createElement("div");
-            productoElement.classList.add("border", "border-gray-300", "rounded-md", "p-4", "mb-2");
+            productoElement.classList.add("border", "border-gray-300", "bg-white", "shadow-md", "rounded-md", "p-4", "mb-2");
             const nombreProducto = document.createElement("div");
             nombreProducto.textContent = producto.name;
             nombreProducto.classList.add("font-bold");
