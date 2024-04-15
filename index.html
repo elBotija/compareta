@@ -90,20 +90,22 @@
       resultados.forEach(producto => {
         const productoElement = document.createElement("div");
         productoElement.classList.add("border", "border-gray-300", "bg-white", "shadow-md", "rounded-md", "p-4", "mb-2");
+        productoElement.setAttribute('data-ean', producto.e);
+        productoElement.setAttribute('onclick', 'highlightProduct('+producto.e+');')
 
         const nombreProducto = document.createElement("div");
-        nombreProducto.textContent = producto.name;
+        nombreProducto.textContent = producto.n;
         nombreProducto.classList.add("font-bold");
         productoElement.appendChild(nombreProducto);
 
         const precioProducto = document.createElement("div");
-        precioProducto.textContent = '$ ' + producto.price;
+        precioProducto.textContent = '$ ' + producto.p;
         productoElement.appendChild(precioProducto);
 
         const supermercado = document.createElement("div");
         supermercado.textContent = producto.supermercado;
         productoElement.appendChild(supermercado);
-
+        
         resultadosContainer.appendChild(productoElement);
       });
     }
@@ -124,12 +126,14 @@
           if(producto.supermercado === supermercado){
             const productoElement = document.createElement("div");
             productoElement.classList.add("border", "border-gray-300", "bg-white", "shadow-md", "rounded-md", "p-4", "mb-2");
+            productoElement.setAttribute('data-ean', producto.e);
+            productoElement.setAttribute('onclick', 'highlightProduct('+producto.e+');')
             const nombreProducto = document.createElement("div");
-            nombreProducto.textContent = producto.name;
+            nombreProducto.textContent = producto.n;
             nombreProducto.classList.add("font-bold");
             productoElement.appendChild(nombreProducto);
             const precioProducto = document.createElement("div");
-            precioProducto.textContent = '$ ' + producto.price;
+            precioProducto.textContent = '$ ' + producto.p;
             productoElement.appendChild(precioProducto);
             supermercadoElement.appendChild(productoElement);
           }
@@ -139,21 +143,21 @@
     }
 
     function decorateProducts(categoria, data, supermercado){
-      return data[categoria].map(x => ({ ...x, price: stringToNumber(x.price), supermercado: supermercado }));
+      return data[categoria].map(x => ({ ...x, p: stringToNumber(x.p), supermercado: supermercado }));
     }
 
     // Función para filtrar productos
     function filtrarProductos(categoria, contiene) {
       let resultadosFiltrados = null;
       if (categoria && d && j && ca && cha && co && ve && dis) {
-        // resultadosFiltrados = resultadosFiltrados.filter(producto => producto.name.toLowerCase().includes(categoria.toLowerCase()));
+        // resultadosFiltrados = resultadosFiltrados.filter(producto => producto.n.toLowerCase().includes(categoria.toLowerCase()));
         resultadosFiltrados = [...decorateProducts(categoria, d, 'Dia'), ...decorateProducts(categoria, j, 'Jumbo'), ...decorateProducts(categoria, ca, 'Carrefour'), ...decorateProducts(categoria, cha, 'Changomas'), ...decorateProducts(categoria, co, 'Coto'), ...decorateProducts(categoria, ve, 'Vea'), ...decorateProducts(categoria, dis, 'Disco')];
         if (contiene) {
           //contain all the words
-          resultadosFiltrados = resultadosFiltrados.filter(producto => contiene.every(word => producto.name.toLowerCase().includes(word.toLowerCase())));
+          resultadosFiltrados = resultadosFiltrados.filter(producto => contiene.every(word => producto.n.toLowerCase().includes(word.toLowerCase())));
         }
-        hasCategory = resultadosFiltrados.filter(producto => producto.name.toLowerCase().includes(categoria.toLowerCase()));
-        hasCategory.sort((a, b) => a.price - b.price);
+        hasCategory = resultadosFiltrados.filter(producto => producto.n.toLowerCase().includes(categoria.toLowerCase()));
+        hasCategory.sort((a, b) => a.p - b.p);
       }
 
 
@@ -205,6 +209,21 @@
       search();
     });
 
+    function highlightProduct(ean){
+      //delete previous highlight
+      deleteHighlight();
+      //style element with id "active ean"
+      const stylesEan = document.createElement('style');
+      stylesEan.setAttribute('id','active-ean');
+      stylesEan.textContent = `[data-ean="${ean}"] {background-color: #e9f1b3;}`;
+      document.head.appendChild(stylesEan);
+    }
+
+    function deleteHighlight(){
+      console.log("delete previews highlight")
+      const stylesEan = document.getElementById('active-ean');
+      if(stylesEan) stylesEan.remove();
+    }
 
 
   </script>
