@@ -47,8 +47,6 @@
 
         getData('data/barcodes.json', (r) => d = r);
         getData('data/date.json', (r)=>document.getElementById('date').textContent = 'Actualizado al ' + r.date)
-        
-
         var videoVisible = false;
 var stream = null;
 var camarasDisponibles = [];
@@ -70,7 +68,8 @@ function activarCamara() {
 
         // Si hay más de una cámara, mostrar botones para cambiar de cámara
         if (camarasDisponibles.length > 1) {
-          var botonesHTML = '<button onclick="cambiarCamara(-1)">Cámara anterior</button> <button onclick="cambiarCamara(1)">Siguiente cámara</button>';
+          var botonesHTML = '<button onclick="cambiarCamara(1)">Cambiar cámara</button>';
+          cambiarCamara(1)
           resultado.innerHTML = botonesHTML;
         }
 
