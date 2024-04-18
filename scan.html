@@ -47,10 +47,12 @@
 
         getData('data/barcodes.json', (r) => d = r);
         getData('data/date.json', (r)=>document.getElementById('date').textContent = 'Actualizado al ' + r.date)
-        var videoVisible = false;
+        
 
         var videoVisible = false;
 var stream = null;
+var camarasDisponibles = [];
+var camaraActual = 0;
 
 function activarCamara() {
   var video = document.getElementById('video');
@@ -62,31 +64,18 @@ function activarCamara() {
     // Obtener lista de cámaras disponibles
     navigator.mediaDevices.enumerateDevices()
       .then(function (dispositivos) {
-        var camaras = dispositivos.filter(function (dispositivo) {
+        camarasDisponibles = dispositivos.filter(function (dispositivo) {
           return dispositivo.kind === 'videoinput';
         });
 
-        // Si hay más de una cámara, mostrar interfaz de selección
-        if (camaras.length > 1) {
-          var opciones = camaras.map(function (camara, index) {
-            return `<option value="${camara.deviceId}">${camara.label || 'Cámara ' + (index + 1)}</option>`;
-          });
-
-          var select = '<select id="selectCamara">' + opciones.join('') + '</select>';
-          resultado.innerHTML = 'Selecciona una cámara: ' + select;
-
-          var selectCamara = document.getElementById('selectCamara');
-          selectCamara.addEventListener('change', function () {
-            var camaraSeleccionada = camaras.find(function (camara) {
-              return camara.deviceId === selectCamara.value;
-            });
-
-            iniciarTransmision(camaraSeleccionada);
-          });
-        } else {
-          // Si solo hay una cámara, iniciar transmisión directamente
-          iniciarTransmision(camaras[0]);
+        // Si hay más de una cámara, mostrar botones para cambiar de cámara
+        if (camarasDisponibles.length > 1) {
+          var botonesHTML = '<button onclick="cambiarCamara(-1)">Cámara anterior</button> <button onclick="cambiarCamara(1)">Siguiente cámara</button>';
+          resultado.innerHTML = botonesHTML;
         }
+
+        // Iniciar transmisión con la primera cámara disponible
+        iniciarTransmision(camarasDisponibles[0]);
       })
       .catch(function (error) {
         console.error(error);
@@ -97,10 +86,18 @@ function activarCamara() {
   }
 }
 
+function cambiarCamara(direccion) {
+  var numCamaras = camarasDisponibles.length;
+  camaraActual = (camaraActual + direccion + numCamaras) % numCamaras;
+  detenerTransmision();
+  iniciarTransmision(camarasDisponibles[camaraActual]);
+}
+
 function iniciarTransmision(camara) {
   navigator.mediaDevices.getUserMedia({ video: { deviceId: camara ? camara.deviceId : undefined } })
     .then(function (streamObtenido) {
       stream = streamObtenido;
+      var video = document.getElementById('video');
       video.srcObject = stream;
       video.play();
       video.classList.remove('hidden');
@@ -113,7 +110,9 @@ function iniciarTransmision(camara) {
           .then(function (barcodes) {
             if (barcodes.length > 0) {
               var codigoBarras = barcodes[0].rawValue;
+              var buscadorNombre = document.getElementById('buscadorNombre');
               buscadorNombre.value = codigoBarras; // Asignamos el código al input
+              var resultado = document.getElementById('resultado');
               resultado.innerHTML = formatResult(d[codigoBarras]);
             }
           })
@@ -125,6 +124,18 @@ function iniciarTransmision(camara) {
     .catch(function (error) {
       console.error(error);
     });
+}
+
+function detenerTransmision() {
+  if (stream) {
+    stream.getTracks().forEach(function (track) {
+      track.stop();
+    });
+    var video = document.getElementById('video');
+    video.srcObject = null;
+    video.classList.add('hidden');
+    videoVisible = false;
+  }
 }
 
         function formatResult(res) {
