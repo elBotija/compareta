@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lector y Buscador de Códigos de Barras</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+
+<body>
+  <header class="mb-1 w-full text-center relative">
+    <h1 class="text-3xl font-bold w-full bg-blue-500 text-white py-2 ">Comparador de precios</h1>
+    <small id="date" class="text-xs font-bold text-gray-400">Actualizado al 22-02-2024</small>
+  </header>
+  <div class="bg-gray-100 min-h-screen flex items-start justify-center">
+
+    <div class="max-w-md w-full p-6 bg-white rounded-md mt-8 shadow-md">
+      <h1 class="text-2xl font-bold mb-4">Lector y Buscador de Códigos de Barras</h1>
+
+      <!-- Buscador por nombre -->
+      <div class="flex items-center space-x-4 mb-4">
+        <input type="text" id="buscadorNombre" class="flex-1 border border-gray-300 rounded-md p-2"
+          placeholder="Nombre del producto">
+        <button onclick="buscarPorNombre()" class="bg-blue-500 text-white px-4 py-2 rounded-md">Buscar</button>
+      </div>
+
+      <!-- Botón para activar la cámara -->
+      <div class="flex items-center space-x-4">
+        <button onclick="activarCamara()" class="bg-green-500 text-white px-4 py-2 rounded-md">Activar Cámara</button>
+      </div>
+
+      <!-- Video para mostrar la cámara (inicialmente oculto) -->
+      <video id="video" class="hidden w-full h-48 mt-4 mb-4"></video>
+
+      <!-- Resultado del escaneo -->
+      <p id="resultado" class="text-lg font-semibold mb-4"></p>
+
+      <script>
+        var d = null;
+        function getData(file, callback) {
+          return fetch(file)
+            .then(response => response.json())
+            .then(res => callback(res))
+            .catch(error => console.log(error))
+        }
+
+        getData('data/barcodes.json', (r) => d = r);
+        getData('data/date.json', (r)=>document.getElementById('date').textContent = 'Actualizado al ' + r.date)
+        var videoVisible = false;
+
+        function activarCamara() {
+          var video = document.getElementById('video');
+          var resultado = document.getElementById('resultado');
+          var buscadorNombre = document.getElementById('buscadorNombre');
+
+          // Si la cámara no está activada, la activamos
+          if (!videoVisible) {
+            navigator.mediaDevices.getUserMedia({ video: true })
+              .then(function (stream) {
+                video.srcObject = stream;
+                video.play();
+                video.classList.remove('hidden');
+                videoVisible = true;
+
+                // Configuramos la detección de códigos de barras
+                var barcodeDetector = new BarcodeDetector();
+                setInterval(function () {
+                  barcodeDetector.detect(video)
+                    .then(function (barcodes) {
+                      if (barcodes.length > 0) {
+                        var codigoBarras = barcodes[0].rawValue;
+                        buscadorNombre.value = codigoBarras;  // Asignamos el código al input
+                        resultado.innerHTML = formatResult(d[codigoBarras]);
+                      }
+                    })
+                    .catch(function (error) {
+                      console.error(error);
+                    });
+                }, 1000);
+              })
+              .catch(function (error) {
+                console.error(error);
+              });
+          } else {
+            // Si la cámara ya está activada, mostramos un mensaje
+            resultado.textContent = '¡La cámara ya está activada!';
+          }
+        }
+
+        function formatResult(res) {
+          const ref = d.references;
+          return `Producto: ${res.n}<br/> ${ref["1"]}: ${res["1"] || "-"} <br/> ${ref["2"]}: ${res["2"] || "-"} <br/> ${ref["3"]}: ${res["3"] || "-"} <br/> ${ref["4"]}: ${res["4"] || "-"} <br/> ${ref["5"]}: ${res["5"] || "-"} <br/> ${ref["6"]}: ${res["6"] || "-"} <br/> ${ref["7"]}: ${res["7"] || "-"} `
+        }
+
+        function buscarPorNombre() {
+          var buscadorNombre = document.getElementById('buscadorNombre');
+          var resultado = document.getElementById('resultado');
+
+          if (buscadorNombre.value in d) {
+            resultado.innerHTML = formatResult(d[buscadorNombre.value]);
+
+          } else {
+            resultado.textContent = 'Resultado: No se encontró el producto';
+          }
+
+
+
+        }
+      </script>
+    </div>
+  </div>
+</body>
+
+</html>
