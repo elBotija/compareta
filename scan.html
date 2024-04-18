@@ -68,8 +68,7 @@ function activarCamara() {
 
         // Si hay más de una cámara, mostrar botones para cambiar de cámara
         if (camarasDisponibles.length > 1) {
-          var botonesHTML = '<button onclick="cambiarCamara(1)">Cambiar cámara</button>';
-          cambiarCamara(1)
+          var botonesHTML = '<button onclick="cambiarCamara(-1)">Cámara anterior</button> <button onclick="cambiarCamara(1)">Siguiente cámara</button>';
           resultado.innerHTML = botonesHTML;
         }
 
