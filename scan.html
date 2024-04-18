@@ -49,44 +49,83 @@
         getData('data/date.json', (r)=>document.getElementById('date').textContent = 'Actualizado al ' + r.date)
         var videoVisible = false;
 
-        function activarCamara() {
-          var video = document.getElementById('video');
-          var resultado = document.getElementById('resultado');
-          var buscadorNombre = document.getElementById('buscadorNombre');
+        var videoVisible = false;
+var stream = null;
 
-          // Si la cámara no está activada, la activamos
-          if (!videoVisible) {
-            navigator.mediaDevices.getUserMedia({ video: true })
-              .then(function (stream) {
-                video.srcObject = stream;
-                video.play();
-                video.classList.remove('hidden');
-                videoVisible = true;
+function activarCamara() {
+  var video = document.getElementById('video');
+  var resultado = document.getElementById('resultado');
+  var buscadorNombre = document.getElementById('buscadorNombre');
 
-                // Configuramos la detección de códigos de barras
-                var barcodeDetector = new BarcodeDetector();
-                setInterval(function () {
-                  barcodeDetector.detect(video)
-                    .then(function (barcodes) {
-                      if (barcodes.length > 0) {
-                        var codigoBarras = barcodes[0].rawValue;
-                        buscadorNombre.value = codigoBarras;  // Asignamos el código al input
-                        resultado.innerHTML = formatResult(d[codigoBarras]);
-                      }
-                    })
-                    .catch(function (error) {
-                      console.error(error);
-                    });
-                }, 1000);
-              })
-              .catch(function (error) {
-                console.error(error);
-              });
-          } else {
-            // Si la cámara ya está activada, mostramos un mensaje
-            resultado.textContent = '¡La cámara ya está activada!';
-          }
+  // Si la cámara no está activada, la activamos
+  if (!videoVisible) {
+    // Obtener lista de cámaras disponibles
+    navigator.mediaDevices.enumerateDevices()
+      .then(function (dispositivos) {
+        var camaras = dispositivos.filter(function (dispositivo) {
+          return dispositivo.kind === 'videoinput';
+        });
+
+        // Si hay más de una cámara, mostrar interfaz de selección
+        if (camaras.length > 1) {
+          var opciones = camaras.map(function (camara, index) {
+            return `<option value="${camara.deviceId}">${camara.label || 'Cámara ' + (index + 1)}</option>`;
+          });
+
+          var select = '<select id="selectCamara">' + opciones.join('') + '</select>';
+          resultado.innerHTML = 'Selecciona una cámara: ' + select;
+
+          var selectCamara = document.getElementById('selectCamara');
+          selectCamara.addEventListener('change', function () {
+            var camaraSeleccionada = camaras.find(function (camara) {
+              return camara.deviceId === selectCamara.value;
+            });
+
+            iniciarTransmision(camaraSeleccionada);
+          });
+        } else {
+          // Si solo hay una cámara, iniciar transmisión directamente
+          iniciarTransmision(camaras[0]);
         }
+      })
+      .catch(function (error) {
+        console.error(error);
+      });
+  } else {
+    // Si la cámara ya está activada, mostramos un mensaje
+    resultado.textContent = '¡La cámara ya está activada!';
+  }
+}
+
+function iniciarTransmision(camara) {
+  navigator.mediaDevices.getUserMedia({ video: { deviceId: camara ? camara.deviceId : undefined } })
+    .then(function (streamObtenido) {
+      stream = streamObtenido;
+      video.srcObject = stream;
+      video.play();
+      video.classList.remove('hidden');
+      videoVisible = true;
+
+      // Configuramos la detección de códigos de barras
+      var barcodeDetector = new BarcodeDetector();
+      setInterval(function () {
+        barcodeDetector.detect(video)
+          .then(function (barcodes) {
+            if (barcodes.length > 0) {
+              var codigoBarras = barcodes[0].rawValue;
+              buscadorNombre.value = codigoBarras; // Asignamos el código al input
+              resultado.innerHTML = formatResult(d[codigoBarras]);
+            }
+          })
+          .catch(function (error) {
+            console.error(error);
+          });
+      }, 1000);
+    })
+    .catch(function (error) {
+      console.error(error);
+    });
+}
 
         function formatResult(res) {
           const ref = d.references;
